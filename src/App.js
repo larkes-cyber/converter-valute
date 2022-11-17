@@ -1,51 +1,58 @@
-import {Component,useState,useEffect} from 'react';
-import {Container} from 'react-bootstrap';
+
+import { useEffect } from 'react';
 import './App.css';
-import Service from './Service';
+import useCounterWithActions from "./CustomHook";
+import useRandomCounterApi from './UseRandomCounterApi';
 
-const server = new Service();
+const Counter = (props) => {
+  const counter = useCounterWithActions(props.counter)
+ 
+  useEffect(()=>{
+    counter.setCounterFromOutside(props.counter);
+  },[props]);
 
+  return (
+    <div className="component">
+      <div className="counter">{counter.counter}</div>
+      <div className="controls">
+        <button onClick={counter.incCounter}>INC</button>
+        <button onClick={counter.decCounter}>DEC</button>
+        <button onClick={counter.rndCounter}>RND</button>
+        <button onClick={counter.resetCounter}>RESET</button>
+      </div>
+    </div>
+  )
+}
 
-const App = (props) => {
-  
-    const [counter,setCounter] = useState(props.default)
+const RndCounter = (props) => {
+  const counter = useCounterWithActions(props.counter)
 
-    const [coins,setCoins] = useState({
-      usd:0,
-      eur:0,
-      uah:0
-    })
+  useEffect(()=>{
+    counter.setCounterFromOutside(props.counter);
+  },[props]);
 
-    useEffect(()=>{
-      server.getCurrencyCourse().then((props)=>{
-        setCoins({
-          usd:props.USD,
-          eur:props.EUR,
-          uah:props.UAH
-        })
-      })
-    },[])
+  return (
+    <div className="component">
+      <div className="counter">{counter.counter}</div>
+      <div className="controls">
+        <button onClick={counter.rndCounter}>RND</button>
+        <button onClick={counter.resetCounter}>RESET</button>
+      </div>
+    </div>
+  )
+}
 
-    function onChangeValue(i){
-      setCounter(Math.ceil(props.default * i))
-    }
+const App = () => {
 
-    function onResetValue(){
-        setCounter(0)
-    }
+  const fisrt = useRandomCounterApi(),
+  second = useRandomCounterApi()
 
-
-    return (
-        <div class="app">
-          <div class="counter">{counter}</div>
-          <div class="controls">
-            <button onClick={()=> onChangeValue(coins.usd)}>USD</button>
-            <button onClick={()=> onChangeValue(coins.eur)}>EUR</button>
-            <button onClick={()=> onChangeValue(coins.uah)}>UAH</button>
-            <button onClick={()=> onResetValue()}>RESET</button>
-          </div>
-        </div>
-      )
-  }
+  return (
+      <>
+          <Counter counter={fisrt}/>
+          <RndCounter counter={second}/>
+      </>
+  )
+}
 
 export default App;
